@@ -1,0 +1,16 @@
+*, body, div {
+        font-family:'Helvetica', 'Arial', 'sans';
+        font-size:13px;
+        color:#000;
+}
+.href,
+a,
+a:link,
+a:visited {
+        cursor:pointer;
+        color:#EE9900;
+}
+.href:hover,
+a:hover {
+        color:#FF9900;
+}

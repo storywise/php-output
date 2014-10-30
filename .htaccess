@@ -1,0 +1,18 @@
+RewriteEngine On
+
+# pass the default character set
+AddDefaultCharset utf-8
+
+# set the server timezone
+SetEnv TZ Europe/Amsterdam
+
+# set the server administrator email
+SetEnv SERVER_ADMIN merten@creativenarrative.com
+
+# setup framework redirects and /this/access
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.+)$ index.php?uri=$1 [QSA,L]
+
+# dont allow directory indexes
+Options -Indexes

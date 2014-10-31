@@ -33,47 +33,46 @@ class OutputTypeXhr extends Output {
                         throw new Exception('Request not found, but notfound controller is missing.');
         }
 
-        public function setMVC($folder) {
+        /* public function setMVC($folder) {
 
-                // Will throw exception if not valid
-                parent::setMVC($folder);
+          // Will throw exception if not valid
+          parent::setMVC($folder);
 
-                // Create Xhr controller for template
-                $this->xhr = Xhr::get($folder);
+          // Create Xhr controller for template
+          $this->xhr = Xhr::get($folder);
 
-                // Set controller
-                $this->xhr->setController($this->getController());
-        }
+          // Set controller
+          $this->xhr->setController($this->getController());
+          }
 
-        public function setAppMVC(AppLocator $app) {
+          public function setAppMVC(AppLocator $app) {
 
-                // Xhr, version is unknown
-                $status = parent::setAppMVC($app);
+          // Xhr, version is unknown
+          $status = parent::setAppMVC($app);
 
-                // Allow app to be aware
-                ControllerApp::setApp($app);
+          // Allow app to be aware
+          ControllerApp::setApp($app);
 
-                if (!$status) {
-                        return false;
-                }
+          if (!$status) {
+          return false;
+          }
 
-                // Create app xhr controller
-                $this->xhr = Xhr::get($app->getKey());
+          // Create app xhr controller
+          $this->xhr = Xhr::get($app->getKey());
 
-                // Expect it
-                if ($this->xhr === false)
-                        throw new Exception("Missing Xhr controller for app: {$app->getKey()} ");
+          // Expect it
+          if ($this->xhr === false)
+          throw new Exception("Missing Xhr controller for app: {$app->getKey()} ");
 
-                // Set it
-                $this->xhr->setController(parent::getAppController($app->getKey()));
+          // Set it
+          $this->xhr->setController(parent::getAppController($app->getKey()));
 
-                return true;
-        }
+          return true;
+          }
 
-        public function getXhr() {
-                return $this->xhr;
-        }
-
+          public function getXhr() {
+          return $this->xhr;
+          } */
 }
 
 ?>

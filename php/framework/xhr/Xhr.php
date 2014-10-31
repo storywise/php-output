@@ -25,6 +25,10 @@ abstract class Xhr extends Instance {
                 parent::__construct($model, $view);
         }
 
+        public function getData() {
+                return $this->data;
+        }
+        
         public function setData($data) {
                 $this->data = $data;
         }

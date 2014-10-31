@@ -6,10 +6,10 @@
  */
 class OutputTypePage extends Output {
 
-        private $template;
+        /*private $template;
         private $postHeadApps = array();
-        private $app = array();
-        private $html;
+        private $app = array();*/
+        //private $html;
 
         public function __construct(DbConnect $model = null, $view = null) {
                 parent::__construct($model, $view);
@@ -32,20 +32,19 @@ class OutputTypePage extends Output {
                 }
 
                 if ($this->controller !== false) {
-
                         // Prepare the page for output
                         $this->controller->prepare();
                 } else
                         throw new Exception('Request not found, but notfound controller is missing.');
         }
-
+/*
         public function getAppController($appId) {
                 if (isset($this->app[$appId]))
                         return $this->app[$appId];
                 return false;
         }
 
-        /* public function getHtml() {
+         public function getHtml() {
           return $this->html;
           }
 
@@ -76,14 +75,14 @@ class OutputTypePage extends Output {
         /**
          * @param String $pageid        Get the path towards the requested content
          * @return type
-         */
+         
         protected function getContentPath($folder, $template) {
                 return FOLDER_TEMPLATE . $folder . DIR_SEP . $template . '.php';
         }
 
         protected function getTemplateDir($folder) {
                 return FOLDER_TEMPLATE . $folder . DIR_SEP;
-        }
+        }*/
 
         /**
          * Prepare model, view and controller custom to the template
@@ -103,7 +102,7 @@ class OutputTypePage extends Output {
          * @param type $appPath
          * @param type $appName
          * ->getPath(), $app->getKey());
-         */
+         
         public function setAppMVC(AppLocator $app) {
 
                 if (!$app->isValid()) {
@@ -123,13 +122,13 @@ class OutputTypePage extends Output {
 
                         return true;
                 }
-        }
+        }*/
 
         /**
          * 
          * @param String $folder                Folder in which the page will exist
          * @param type $template                  Template / Page
-         */
+         
         public function load($folder, $template) {
 
                 $this->template = $template;
@@ -169,14 +168,14 @@ class OutputTypePage extends Output {
 
                 // Now finally bring the template into action
                 require $path;
-        }
+        }*/
 
         /**
          * 
          * @param Array $apps
          * @param Metatags $mt
          * @throws Exception
-         */
+         
         public function addSharedApps($apps, $pageId, $mt = false) {
 
                 if (count($apps) > 0) {
@@ -214,13 +213,13 @@ class OutputTypePage extends Output {
                                 }
                         }
                 }
-        }
+        }*/
 
         /**
          * Adds the related apps indicated as above or below
          * @param HtmlDiv $divStart
          * @param int  $pageId
-         */
+         
         public function addRemainingApps(HtmlAbstract $divInner, $pageId) {
 
                 if (!isset($this->postHeadApps[$pageId]))
@@ -262,7 +261,7 @@ class OutputTypePage extends Output {
 
                 // No plugins added
                 return false;
-        }
+        }*/
 
 
         public function output() {
@@ -272,8 +271,6 @@ class OutputTypePage extends Output {
                 if (LOCAL) {
 
                         $bench = Bench::output(true);
-
-                        echo "\n\n<!-- Local performance report -->\n\n";
                         echo $bench;
                         /* $count = count(DbQuery::$log);
                           $str = print_r(array_count_values(DbQuery::$log), true);

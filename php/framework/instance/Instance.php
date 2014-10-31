@@ -109,14 +109,12 @@ abstract class Instance {
                                 break;
                 }
 
-                if (self::$debugging) {
-                        echo '<div style="margin-bottom:15px;">' .
-                        'Possible instance list:' .
-                        '<pre>' .
-                        print_r($arr, true) .
-                        '</pre>' .
-                        '</div>';
-                }
+                /*echo '<div style="margin-bottom:15px;">' .
+                'Possible instance list:' .
+                '<pre>' .
+                print_r($arr, true) .
+                '</pre>' .
+                '</div>';*/
 
                 return self::getExistingTypeByList($arr);
         }

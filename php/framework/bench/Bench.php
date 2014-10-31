@@ -35,7 +35,7 @@ class Bench {
 
         public static function output($getVar = false) {
 
-                $log = "<!-- Benchmark in order of appearance:\n ";
+                $log = "\n\n<!-- Benchmark in order of appearance:\n ";
 
                 $sortByTime = array();
                 foreach (Bench::$LIST as $id => $row) {
@@ -49,7 +49,7 @@ class Bench {
                         $sortByTime[$id] = $row['sinceLast'];
                 }
 
-                $log .= "\n-->";
+                $log .= "\n-->\n";
                 
                 // Sort by tSinceLast
                 array_multisort($sortByTime, SORT_DESC, Bench::$LIST);

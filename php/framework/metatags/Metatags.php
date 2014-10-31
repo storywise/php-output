@@ -2,26 +2,84 @@
 
 class Metatags {
 
-        public $description = "";
-        public $title = "";
-        public $sitename = "";
-        public $url = "";
-        public $image;
-        public $secret = false;
-        public $customTags;
-        public $favicon = "favicon.ico";
-        
+        const DESCRIPTION = 'description';
+        const TYPE = 'type';
+        const TITLE = 'title';
+        const IMAGE = 'image';
+        const KEYWORDS = 'keywords';
+        const COPYRIGHT = 'copyright';
+        const LANGUAGE = 'language';
+        const URL = 'url';
+        const SITENAME = 'sitename';
+        const VIEWPORT_WIDTH = 'viewportwidth';
+        const FAVICON = 'favicon';
+        const SECRET = 'secret';
+
+        protected $customTags;
+        protected $data = array();
+
         function __construct($data) {
-                if ($data === false)
-                        return;
 
-                $this->title = !empty($data['title']) ? $data['title'] : '';
-                $this->description = !empty($data['description']) ? $data['description'] : '';
-                $this->sitename = !empty($data['sitename']) ? $data['sitename'] : '';
-                $this->url = rtrim(ltrim($_SERVER['REQUEST_URI'], '/'), '/');
-                $this->image ='';
+                // Set all properties
+                foreach ($data as $key => $value) {
+                        $this->setProperty($key, $value);
+                }
 
-                $this->keywords = !empty($data['keywords']) ? $data['keywords'] : '';
+                $list = array(
+                    self::DESCRIPTION,
+                    self::TYPE,
+                    self::TITLE,
+                    self::IMAGE,
+                    self::KEYWORDS,
+                    self::COPYRIGHT,
+                    self::LANGUAGE,
+                    self::URL,
+                    self::SITENAME,
+                    self::VIEWPORT_WIDTH,
+                    self::FAVICON,
+                    self::SECRET
+                );
+
+                // Scan through all available metatag properties to see whats missing
+                foreach ($list as $key => $value) {
+                        // If there is no value available in the input, try to obtain default
+                        if (!isset($data[$value])) {
+
+                                // See if there is a format object available for the given metatags property
+                                $format = MetatagsFormat::get($value);
+
+                                if ($format !== false) {
+
+                                        // Get default value
+                                        $defaultValue = $format->getDefault();
+
+                                        // Set default value
+                                        if ($defaultValue !== null)
+                                                $this->setProperty($value, $defaultValue);
+                                }
+                        }
+                }
+        }
+
+        public function setProperty($property, $value) {
+                return $this->data[$property] = $value;
+        }
+
+        public function hasProperty($property) {
+                return isset($this->data[$property]);
+        }
+
+        public function getProperty($property) {
+                if (!$this->hasProperty($property))
+                        return '';
+                $format = MetatagsFormat::get($property);
+                if ($format !== false) {
+                        // Format prior to output if available
+                        $format->setInput($this->data[$property]);
+                        return $format->getFormat();
+                }
+                // Otherwise return unaltered input
+                return $this->data[$property];
         }
 
         /**
@@ -41,58 +99,6 @@ class Metatags {
         public function hasCustomTags() {
                 return ToolsArray::is($this->customTags);
         }
-
-        /**
-         * Set the title of the page in the corresponding Open Graph and meta tags.
-         * Do mind the concatenating of the titles, creating a hierarchy like:
-         * Homepage - Some page - Some subcontent
-         * @param type $title
-         */
-        public function setTitle($title) {
-                if (!empty($title))
-                        $this->title .= ' &mdash; ' . ucfirst($title);
-        }
-
-        /**
-         * Compose a description for the open graph and meta tags
-         * @param type $desc
-         */
-        public function setDescription($desc) {
-                $desc = trim($desc);
-                if (!empty($desc) && $desc !== "") {
-                        if (is_array($desc)) {
-                                // When an array of multiple text elements is passed
-                                $strDescription = '';
-                                $max = count($desc);
-                                for ($i = 0; $i < $max; $i++) {
-                                        $entry = $desc[$i];
-                                        $str = strip_tags($this->getClean($entry['narrativebody']));
-                                        $chopped = strlen($str) > 64 ? substr($str, 0, 64) . '...' : $str;
-                                        $strDescription .= $chopped;
-                                        if ($i < $max - 1)
-                                                $strDescription .= ' &mdash; ';
-                                }
-                                $this->description .= '&mdash; ' . $strDescription;
-                        } else
-                                $this->description = $this->getClean($desc);
-                }
-        }
-
-        private function getClean($str) {
-                return str_replace(array("\r", "\n", "\t"), '', $str);
-        }
-
-        public function getRobots() {
-                if (!$this->secret)
-                        return '<meta name="robots" content="index, follow">' . "\n";
-                else if ($this->secret)
-                        return '<meta name="robots" content="noindex, nofollow">' . "\n";
-        }
-
-        public function getDescription() {
-                return strip_tags($this->description);
-        }
-
 }
 
 ?>

@@ -17,7 +17,6 @@ class Html extends HtmlAbstract {
 
         private $prepend;
         private $head;
-        protected $viewportWidth = 'device-width';
 
         public function __construct() {
                 $this->head = array();
@@ -55,7 +54,7 @@ class Html extends HtmlAbstract {
                 $tidy->parseString($this->getBody(), $options, 'utf8');
 
                 $document = $this->getPrependStr() . '<' . $this->getInnerTag() . '>' . "\n" . $this->getHead() . $tidy->body() . '</' . $this->type . '>';
-                
+
                 return $document;
 
                 /*
@@ -92,7 +91,7 @@ class Html extends HtmlAbstract {
          */
         private function getHead() {
                 $str = "<head>\n\n";
-                $str .= "<!-- Identity Storywise, a Creative Narrative. www.creativenarrative.com -->\n\n";
+                $str .= "<!-- Identity Storywise, a Creative Narrative. www.identitystorywise.com -->\n\n";
                 if (ToolsArray::is($this->head)) {
                         for ($i = 0; $i < count($this->head); $i++) {
                                 $str .= $this->head[$i] . "\n";
@@ -188,9 +187,10 @@ class Html extends HtmlAbstract {
                 if (!$meta instanceof Metatags)
                         $meta = new Metatags(); // Use default if no instance was found
 
-                $this
-                        ->addToHead('<link rel="shortcut icon" href="' . $meta->favicon . '">')
-                        ->addToHead('<title>' . $meta->title . '</title>')
+                if ($meta->hasProperty(Metatags::FAVICON))
+                        $this->addToHead('<link rel="shortcut icon" href="' . $meta->getProperty(Metatags::FAVICON) . '">');
+
+                $this->addToHead('<title>' . $meta->getProperty(Metatags::TITLE) . '</title>')
                         ->addToHead("\n")
                         ->addToHead('<!--Base URL for all paths -->')
                         ->addToHead('<base href="' . URL . '">')
@@ -209,35 +209,75 @@ class Html extends HtmlAbstract {
                 $this
                         ->addToHead("<!-- Meta tags -->")
                         ->addToHead('<meta charset="utf-8">')
-                        //->addToHead('<meta http-equiv="X-UA-Compatible" content="IE=edge">')
-                        ->addToHead($meta->getRobots())
-                        ->addToHead('<meta name="description" content="' . $meta->getDescription() . '">')
-                        ->addToHead('<meta name="keywords" content="' . $meta->keywords . '">')
-                        ->addToHead("")
-                        ->addToHead("<!--Open Graph's -->")
-                        ->addToHead('<meta property="og:site_name" content="' . $meta->sitename . '"/>')
-                        ->addToHead('<meta property="og:url" content="' . $meta->url . '">')
-                        ->addToHead('<meta property="og:title" content="' . $meta->title . '">')
-                        ->addToHead('<meta property="og:description" content="' . $meta->getDescription() . '">')
-                        ->addToHead('<meta property="og:image" content="' . $meta->image . '">')
-                        ->addToHead('<meta property="og:type" content="website">')
-                        ->addToHead('<meta name="viewport" content="width=' . $this->viewportWidth . ', initial-scale=1, maximum-scale=1">')
                 ;
+                //->addToHead('<meta http-equiv="X-UA-Compatible" content="IE=edge">')
+
+                if ($meta->hasProperty(Metatags::SECRET))
+                        $this->addToHead('<meta name="robots" content="' .
+                                $meta->getProperty(Metatags::SECRET) . '">');
+
+                if ($meta->hasProperty(Metatags::DESCRIPTION))
+                        $this->addToHead('<meta name="description" content="' .
+                                $meta->getProperty(Metatags::DESCRIPTION) . '">');
+
+                if ($meta->hasProperty(Metatags::KEYWORDS))
+                        $this->addToHead('<meta name="keywords" content="' .
+                                $meta->getProperty(Metatags::KEYWORDS) . '">');
+
+                if ($meta->hasProperty(Metatags::COPYRIGHT))
+                        $this->addToHead('<meta name="copyright" content="' .
+                                $meta->getProperty(Metatags::COPYRIGHT) . '">');
+
+                if ($meta->hasProperty(Metatags::LANGUAGE))
+                        $this->addToHead('<meta name="language" content="' .
+                                $meta->getProperty(Metatags::LANGUAGE) . '">');
+
+                $this
+                        ->addToHead("")
+                        ->addToHead("<!--Open Graph's -->");
+
+                if ($meta->hasProperty(Metatags::SITENAME))
+                        $this->addToHead('<meta property="og:site_name" content="' .
+                                $meta->getProperty(Metatags::SITENAME) . '"/>');
+
+                if ($meta->hasProperty(Metatags::URL))
+                        $this->addToHead('<meta property="og:url" content="' .
+                                $meta->getProperty(Metatags::URL) . '">');
+
+                if ($meta->hasProperty(Metatags::TITLE))
+                        $this->addToHead('<meta property="og:title" content="' .
+                                $meta->getProperty(Metatags::TITLE) . '">');
+
+                if ($meta->hasProperty(Metatags::DESCRIPTION))
+                        $this->addToHead('<meta property="og:description" content="' .
+                                $meta->getProperty(Metatags::DESCRIPTION) . '">');
+
+                if ($meta->hasProperty(Metatags::IMAGE))
+                        $this->addToHead('<meta property="og:image" content="' .
+                                $meta->getProperty(Metatags::IMAGE) . '">');
+
+                if ($meta->hasProperty(Metatags::VIEWPORT_WIDTH))
+                        $this->addToHead('<meta name="viewport" content="width=' .
+                                $meta->getProperty(Metatags::VIEWPORT_WIDTH) . ', initial-scale=1, maximum-scale=1">');
+
+                if ($meta->hasProperty(Metatags::TYPE))
+                        $this->addToHead('<meta property="og:type" content="' .
+                                $meta->getProperty(Metatags::TYPE) . '">');
 
                 // Optional Google Analytics support
-                /*$ga = GOOGLE_ANALYTICS;
+                /* $ga = GOOGLE_ANALYTICS;
 
-                // Check if valid key and add the javascript to open up the gates
-                if (isset($ga) && is_string($ga) && strlen($ga) > 5) {
-                        $this->addToHead("<script>\n" .
-                                "(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){\n" .
-                                "(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),\n" .
-                                "m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)\n" .
-                                "})(window,document,'script','//www.google-analytics.com/analytics.js','ga');\n\n" .
-                                "ga('create', '" . $ga . "', '" . str_replace('http://www', '', URL) . "');\n" .
-                                "ga('send', 'pageview');\n\n" .
-                                "</script>");
-                }*/
+                  // Check if valid key and add the javascript to open up the gates
+                  if (isset($ga) && is_string($ga) && strlen($ga) > 5) {
+                  $this->addToHead("<script>\n" .
+                  "(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){\n" .
+                  "(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),\n" .
+                  "m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)\n" .
+                  "})(window,document,'script','//www.google-analytics.com/analytics.js','ga');\n\n" .
+                  "ga('create', '" . $ga . "', '" . str_replace('http://www', '', URL) . "');\n" .
+                  "ga('send', 'pageview');\n\n" .
+                  "</script>");
+                  } */
 
                 return $this;
         }

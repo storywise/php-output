@@ -9,7 +9,8 @@ AssetCss.prototype.load = function() {
         $("<link/>", {
                 rel: "stylesheet",
                 type: "text/css",
-                href: this.path
+                href: this.path,
+                'class':'assetCss'
         }).appendTo("head");
         
         // Not a neat way in sync with actual load

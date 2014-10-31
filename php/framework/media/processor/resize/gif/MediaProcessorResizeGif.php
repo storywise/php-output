@@ -42,7 +42,7 @@ class MediaProcessorResizeGif extends MediaProcessorResize {
                 if (!is_dir($tmpFolder))
                         mkdir($tmpFolder);
 
-                $tmpFileFolder = $tmpFolder . $this->media->getData('media_id') . '/';
+                $tmpFileFolder = $tmpFolder . $this->media->getData('id') . '/';
 
                 // Create if needed
                 if (!is_dir($tmpFileFolder))

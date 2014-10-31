@@ -7,70 +7,40 @@
  */
 class Media extends Instance {
 
-        public static function isType(array $data, $type) {
-                $index = isset($data['mediatype']) ? 'mediatype' : '__mediatype';
-                return strpos($data[$index], $type . '/') !== false;
-        }
-
-        public static function canGet(array $data) {
-                if (!isset($data['media_id']) && !isset($data['__media_id']))
-                        return false;
-
-                if (!isset($data['mediatype']) && !isset($data['__mediatype']))
-                        return false;
-
-                if (!isset($data['extension']) && !isset($data['__extension']))
-                        return false;
-
-                return true;
-        }
-
         /**
          * Get an instance of a media object, pass in first part of the mimetype
          * value before the /. For example image/jpg, gives the argument image,
          * to spawn its related media object.
-         * 
          * @return Media
          */
-        public static function get(array $data) {
-                if (!isset($data['media_id']) && !isset($data['__media_id']))
-                        throw new Exception('media_id property is required in class Media');
+        public static function get($path, $modifier = false) {
 
-                if (!isset($data['mediatype']) && !isset($data['__mediatype']))
-                        throw new Exception('mediatype property is required in class Media');
+                // Get extension of file
+                $extension = pathinfo($path, PATHINFO_EXTENSION);
+                $folder = pathinfo($path, PATHINFO_DIRNAME);
+                $filename = pathinfo($path, PATHINFO_BASENAME);
 
-                if (!isset($data['extension']) && !isset($data['__extension']))
-                        throw new Exception('extension property is required in class Media');
+                // Until i get the filinfo extension to work, im hacking the mimetype as such
+                // This break support for audio etc
+                $mime = "image/{$extension}";
 
-                $mime = isset($data['mediatype']) ? $data['mediatype'] : ( isset($data['__mediatype']) ? $data['__mediatype'] : false );
                 if ($mime !== false) {
-                        $majorType = strstr($mime, '/', true);
-                        $extension = isset($data['extension']) ? $data['extension'] : ( isset($data['__extension']) ? $data['__extension'] : false );
-                        if ($extension !== false) {
-                                $types = array($majorType, $extension);
-                                $inst = Instance::create('Media', $types, Instance::$NOVIEW);
-                                $inst->setData($data);
-                                return $inst;
-                        }
+                        $majorType = strstr($mime, "/", true);
+                        $types = array($majorType, $extension);
+                        $inst = Instance::create('Media', $types, Instance::$NOVIEW);
+                        $inst->setData(array(
+                            'extension' => $extension,
+                            'mediatype' => $mime,
+                            'folder' => $folder . '/',
+                            'file' => $filename,
+                            'id' => filemtime($path),
+                            'credit' => false,
+                            'modifier' => $modifier
+                                )
+                        );
+                        return $inst;
                 } else
                         return false;
-        }
-
-        /**
-         * Just to make sure the media/hash access token is not the same
-         * as the encrypted token used to access the file directly in the url,
-         * we pump another layer of encryption over the md5 hash and
-         * store the raw image with that filename.
-         * 
-         * @param type $hash
-         * @return type
-         */
-        public static function getEncryptedFilename($hash) {
-                return Hash::create(USE_ENCRYPT, $hash, HASH_PW_KEY);
-        }
-
-        public static function getDatabaseFolder() {
-                return DB_NAME_DEFAULT . '/';
         }
 
         public function __construct(DbConnect $model = null, $view = null) {
@@ -78,38 +48,22 @@ class Media extends Instance {
                 Bench::mark("Media");
         }
 
-        public function exists() {
-                return file_exists($this->getPathRelative()) && is_readable($this->getPathRelative());
+        /**
+         * If alternative text overlay, then this is not necessary
+         * @param type $credit
+         */
+        public function setCredit($credit) {
+                $this->data['credit'] = $credit;
         }
 
-        public function validate() {
-                return isset($this->data) && $this->has('hash') && $this->has('extension');
+        public function exists() {
+                return file_exists($this->getPathRelative()) && is_readable($this->getPathRelative());
         }
 
         public function getMimeBasedClassname() {
                 // Create class variable of mimetype
                 $mime = $this->getData('mediatype');
                 return strstr($mime, '/', true);
-        }
-
-        public function getIcon() {
-                return $this->getData('icon');
-        }
-
-        /* public function hasAlbum() {
-          return !empty($this->data['__album']) || !empty($this->data['album']);
-          } */
-
-        public function getWatermark() {
-                return $this->getPath(MediaProcessor::MMID_WATERMARK);
-        }
-
-        public function getMedium() {
-                return $this->getPath(MediaProcessor::MMID_MEDIUM);
-        }
-
-        public function getThumbnail() {
-                return $this->getPath(MediaProcessor::MMID_THUMBNAIL);
         }
 
         public function getExtension() {
@@ -123,8 +77,7 @@ class Media extends Instance {
          * @return string
          */
         public function getFilename() {
-                return $this->getData('hash') . '.' . $this->getExtension();
-                return self::getEncryptedFilename($this->getData('hash')) . '.' . $this->getExtension();
+                return $this->getData('file');
         }
 
         /**
@@ -133,11 +86,7 @@ class Media extends Instance {
          * @return type
          */
         public function getFolder($relative = true) {
-                $id = $this->getData('media_id');
-                $folder = $id . '/';
-                if ($relative)
-                        return FOLDER_MEDIA_REL . self::getDatabaseFolder() . $folder;
-                return FOLDER_MEDIA . self::getDatabaseFolder() . $folder;
+                return $this->getData('folder');
         }
 
         /**
@@ -160,9 +109,11 @@ class Media extends Instance {
          * @return string
          */
         public function getPath($modifierId = false) {
-                return URL . 'media/' . $this->getData('hash');
-                // Might override to distinct between album etc
-                return $this->getFolder(false) . $this->getFilename();
+                return URL . $this->getFolder() . $this->getFilename();
+        }
+
+        public function getPathModified($modifier) {
+                return $this->getPath($modifier);
         }
 
         public function has($key) {

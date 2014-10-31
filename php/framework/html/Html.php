@@ -91,7 +91,7 @@ class Html extends HtmlAbstract {
          */
         private function getHead() {
                 $str = "<head>\n\n";
-                $str .= "<!-- Identity Storywise, a Creative Narrative. www.identitystorywise.com -->\n\n";
+                $str .= "<!-- Identity Storywise, http://www.identitystorywise.com or https://github.com/storywise -->\n\n";
                 if (ToolsArray::is($this->head)) {
                         for ($i = 0; $i < count($this->head); $i++) {
                                 $str .= $this->head[$i] . "\n";

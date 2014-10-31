@@ -4,9 +4,14 @@ include_once ROOT . 'php/vendor/wideimage/WideImage.php';
 
 abstract class MediaProcessor extends Instance {
 
-        const MMID_MEDIUM = 'medium';
-        const MMID_THUMBNAIL = 'small';
-        const MMID_WATERMARK = 'watermark';
+        static $SMALL = array('mediamodifier_id' => 1,
+            'config' => 'width=375,height=375,fit=inside');
+        
+        static $MEDIUM = array('mediamodifier_id' => 2,
+            'config' => 'width=750,height=750,fit=inside');
+        
+        static $WATERMARK = array('mediamodifier_id' => 3,
+            'config' => 'watermark=static/brand/watermark.png,width=1600,height=1600,wmposx=right,wmposy=bottom');
 
         public static function get($config, $extension) {
                 $settings = new AppSettings($config['config']);
@@ -72,7 +77,7 @@ abstract class MediaProcessor extends Instance {
                 parent::__construct($model, $view);
         }
 
-        protected function modifyText( &$image ) {
+        protected function modifyText(&$image) {
                 $modType = $this->getArgs()->get__types()[1];
                 $textApplier = MediaText::get($modType);
 

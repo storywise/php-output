@@ -24,26 +24,22 @@ class MediaImage extends Media {
                 return parent::getPathRelative();
         }
 
-        protected function prepareModified($modifierId, $getRelative = true) {
-                
+        protected function prepareModified($modifier, $getRelative = true) {
+
                 Bench::mark("Media.prepareModified");
-                
-                if ($modifierId !== false) {
-                        
-                        $modifierConfig = $this->getModel()->getModifierConfig($modifierId);
-                        
-                        if ($modifierConfig !== false) {
-                                // Where should the modified exist?
-                                if (!$this->hasModifiedImage($modifierConfig)) {
-                                        // Create the actual modified image
-                                        $this->createModified($modifierConfig);
-                                }
-                                
-                                $pathModified = $this->getModifiedPath($modifierConfig, true, $getRelative);                                
-                                Bench::mark("Media.prepareModified ready");
-                                
-                                return $pathModified;
+
+                if ($modifier !== false) {
+
+                        // Where should the modified exist?
+                        if (!$this->hasModifiedImage($modifier)) {
+                                // Create the actual modified image
+                                $this->createModified($modifier);
                         }
+
+                        $pathModified = $this->getModifiedPath($modifier, true, $getRelative);
+                        Bench::mark("Media.prepareModified ready");
+
+                        return $pathModified;
                 }
                 return false;
         }
@@ -67,7 +63,7 @@ class MediaImage extends Media {
                 $modifier->setTargetPath($modifiedFile);
 
                 $modified = $modifier->modify();
-                
+
                 Bench::mark("Media.createModified ($modified) finished");
 
                 // Get on with it
@@ -147,12 +143,9 @@ class MediaImage extends Media {
         }
 
         public function getModifiedFolder($relative = true) {
-                $folder = '_m/';
 
-                if ($relative)
-                        $target = FOLDER_MEDIA_REL . Media::getDatabaseFolder() . $folder;
-                else
-                        $target = FOLDER_MEDIA . Media::getDatabaseFolder() . $folder;
+                $folder = '_m/';
+                $target = FOLDER_MEDIA_ARCHIVE . $folder;
 
                 if (!is_dir($target))
                         mkdir($target);
@@ -160,7 +153,7 @@ class MediaImage extends Media {
         }
 
         public function getModifiedFilename() {
-                return base64_encode($this->getData('media_id') * BASE64_ID_SEED) . '.' . $this->getExtension();
+                return base64_encode($this->getData('id') * BASE64_ID_SEED) . '.' . $this->getExtension();
         }
 
         public function getSize() {

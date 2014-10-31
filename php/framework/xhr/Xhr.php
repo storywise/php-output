@@ -7,7 +7,7 @@
 abstract class Xhr extends Instance {
 
         protected $controller;
-        protected $data;
+        protected $vars;
 
         public static function get($type) {
                 $xhr = Instance::create('Xhr', array($type), Instance::$AUTH, Instance::$NOABSTRACT);
@@ -25,12 +25,12 @@ abstract class Xhr extends Instance {
                 parent::__construct($model, $view);
         }
 
-        public function getData() {
-                return $this->data;
+        public function getVars() {
+                return $this->vars;
         }
         
-        public function setData($data) {
-                $this->data = $data;
+        public function setVars($vars) {
+                $this->vars = $vars;
         }
 
         protected function getController() {

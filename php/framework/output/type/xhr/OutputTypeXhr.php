@@ -20,7 +20,7 @@ class OutputTypeXhr extends Output {
                 $this->controller = Xhr::get($raw['type']);
 
                 if ($this->controller !== false) {
-                        $this->controller->setData($raw);
+                        $this->controller->setVars($raw['vars']);
                 } else {
                         // Requested template is missing
                         $this->controller = Controller::get(Output::NOTFOUND);
